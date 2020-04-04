@@ -13,12 +13,12 @@ function montage (imgPaths) {
         }
 
         const p = path.join(__dirname, '../done.jpg')
-        return g.write(p, (err) => {
+        return g.toBuffer((err, data) => {
             if(err) {
                 console.error(err)
                 reject(err)
             }
-            resolve(p)
+            resolve(data)
         })
     })
 }

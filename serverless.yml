@@ -1,0 +1,25 @@
+service: recursive
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  timeout: 10
+  memorySize: 3000
+
+functions:
+  HttpListener:
+    role: arn:aws:iam::355151872526:role/queueLamda
+    handler: triggers/http.handler
+    events:
+    - http:
+        path: image
+        method: get
+  MessageListener:
+    timeout: 120
+    role: arn:aws:iam::355151872526:role/queueLamda
+    handler: triggers/message.handler
+    events:
+    - sqs:
+        queueName: recursive
+        arn: arn:aws:sqs:ap-southeast-2:355151872526:recursive
+        batchSize: 1
