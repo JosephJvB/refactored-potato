@@ -1,17 +1,17 @@
-module.exports = selectPhotos
+module.exports = selectPhotosUrls
 
-function selectPhotos (data) {
-    const photos = []
+function selectPhotosUrls (data) {
+    const urls = []
     let len = data.length
-    while (photos.length < 25) {
+    while (urls.length < 25) {
         if(len < 0) {
-            throw new Error('Failed to select 25 valid photos')
+            return null
         }
         const idx = Math.floor(Math.random() * len--)
-        if(data[idx] && data[idx].id && data[idx].links.download) {
-            photos.push(data[idx])
+        if(data[idx] && data[idx].links.download) {
+            urls.push(data[idx].links.download)
             data.splice(idx, 1)
         }
     }
-    return photos
+    return urls
 }

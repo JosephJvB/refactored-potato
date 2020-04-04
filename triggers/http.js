@@ -1,5 +1,5 @@
 const { loadRemoteJson } = require('./lib/json')
-const selectPhotos = require('./lib/select')
+const selectPhotosUrls = require('./lib/select')
 const sendMessage = require('./lib/sqs')
 
 exports.handler = async (event, context) => {
@@ -14,7 +14,15 @@ exports.handler = async (event, context) => {
         }
         const q = event.queryStringParameters.query
         const json = await loadRemoteJson(q)
-        const urls = selectPhotos(json).map(p => p.links.download)
+        const urls = selectPhotosUrls(json)
+        if(!urls || urls.length < 25) {
+            return {
+                statusCode: 400,
+                body: JSON.stringify({
+                    message: `Failed to find 25 photos for query "${q}"`
+                })
+            }
+        }
         await sendMessage({
             q,
             urls
