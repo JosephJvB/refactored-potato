@@ -23,14 +23,10 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
         console.log('done')
         return paths
     }
-    if(!fs.existsSync(p)) {
-        console.log(id, ':', u)
-        const fullBuff = await download(u)
-        const cropBuff = await crop(fullBuff)
-        fs.writeFileSync(p, cropBuff)
-    } else {
-        console.log('skip', id)
-    }
+    console.log(id, ':', u)
+    const fullBuff = await download(u)
+    const cropBuff = await crop(fullBuff)
+    fs.writeFileSync(p, cropBuff)
     paths.push(p)
     return downloadCropSaveRecursive(urls, paths, id+1)
 }
