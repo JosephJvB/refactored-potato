@@ -14,10 +14,9 @@ exports.handler = async (event, context) => {
         console.log('DONE DONE DONE', s3Url)
         if(data.socketId) {
             console.log('TO SOCKET', data.socketId)
-            const url = 'https://morning-ravine-56883.herokuapp.com/loaded'
             await axios({
                 method: 'post',
-                url,
+                url: `${process.env.ec2_url}/loaded`,
                 data: {
                     url: s3Url,
                     socketId: data.socketId
