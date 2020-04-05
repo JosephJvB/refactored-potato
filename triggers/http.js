@@ -24,9 +24,11 @@ exports.handler = async (event, context) => {
             }
         }
         await sendMessage({
+            socketId: event.queryStringParameters.socketId,
             q,
             urls
         })
+
         return {
             statusCode: 200,
             body: JSON.stringify({

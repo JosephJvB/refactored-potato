@@ -1,3 +1,4 @@
+const axios = require('axios')
 const fs = require('fs')
 const download = require('./lib/download')
 const crop = require('./lib/crop')
@@ -11,6 +12,17 @@ exports.handler = async (event, context) => {
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
+        if(data.socketId) {
+            const url = 'https://morning-ravine-56883.herokuapp.com/loaded'
+            await axios({
+                method: 'post',
+                url,
+                data: {
+                    url: s3Url,
+                    socketId: data.socketId
+                }
+            })
+        }
     } catch (e) {
         console.error('ERROR', e)
     }
