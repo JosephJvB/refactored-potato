@@ -13,6 +13,7 @@ exports.handler = async (event, context) => {
         const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
         if(data.socketId) {
+            console.log('TO SOCKET', data.socketId)
             const url = 'https://morning-ravine-56883.herokuapp.com/loaded'
             await axios({
                 method: 'post',
