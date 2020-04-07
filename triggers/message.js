@@ -35,17 +35,17 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     paths.push(p)
     return Promise.all([
         downloadCropSaveRecursive(urls, paths, id+1),
-        progress(id+1)
+        progress(id)
     ])
 }
 
-async function progress (count) {
+async function progress (id) {
     if(!socketId) return
     return axios({
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
-            count,
+            imageId: id,
             socketId
         }
     })
