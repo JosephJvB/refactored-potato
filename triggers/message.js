@@ -13,7 +13,11 @@ exports.handler = async (event, context) => {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
         const incomingId = `${socketId}-${data.q}`
+        console.log('INCOMING', incomingId)
+        console.log('IN PROG',inProgressId)
         if(inProgressId == incomingId) return 
+        console.log('FOUND NeW MESSAGE', incomingId)
+        console.log('current', inProgressId)
         inProgressId = incomingId
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
