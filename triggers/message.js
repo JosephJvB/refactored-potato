@@ -5,16 +5,16 @@ const crop = require('./lib/crop')
 const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
 
-let socketId
-let inProgressId
+let socketId // send updates to request socket
+let inProgressId // avoid dupe messages
 
 exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
-        let incomingId = `${socketId}-${data.q}`
-        if(inProgressId == incomingId) return // duplicated message
-        inProgressId = incommingId
+        const incomingId = `${socketId}-${data.q}`
+        if(inProgressId == incomingId) return 
+        inProgressId = incomingId
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${query}-montage.jpg`)
