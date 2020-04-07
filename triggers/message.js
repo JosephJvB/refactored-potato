@@ -42,7 +42,7 @@ async function progress (func, id) {
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
-            process: `${func.name}-${id}`,
+            processId: `${func.name}-${id}`,
             socketId
         }
     }))
