@@ -31,10 +31,21 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     const p = `/tmp/${id}.jpg`
     const fullBuff = await download(u)
     const cropBuff = await crop(fullBuff)
+    // const [fullBuff, _1] = await Promise.all([
+    //     download(u),
+    //     progress(`download-${id}`)
+    // ])
+    // const [cropBuff, _2] = await Promise.all([
+    //     crop(fullBuff),
+    //     progress(`crop-${id}`)
+    // ])
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
-    await progress(id)
-    return downloadCropSaveRecursive(urls, paths, id+1)
+    const [result, _3] = await Promise.all([
+        downloadCropSaveRecursive(urls, paths, id+1),
+        progress(`finish-${id}`)
+    ])
+    return result
 }
 
 async function progress (id) {
