@@ -6,19 +6,13 @@ const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
 
 let socketId // send updates to request socket
-let inProgressId // avoid dupe messages
+let query
 
 exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
-        const incomingId = `${socketId}-${data.q}`
-        console.log('INCOMING', incomingId)
-        console.log('IN PROG',inProgressId)
-        if(inProgressId == incomingId) return 
-        console.log('FOUND NeW MESSAGE', incomingId)
-        console.log('current', inProgressId)
-        inProgressId = incomingId
+        query = data.q
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${query}-montage.jpg`)
@@ -32,16 +26,20 @@ exports.handler = async (event, context) => {
 }
 
 async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
-    const p = `/tmp/${id}.jpg`
     const u = urls[id]
     if(!u) {
-        console.log('done', paths)
+        console.log('done')
         return paths
     }
     console.log(id, ':', u)
-    const fullBuff = await download(u)
-    const cropBuff = await crop(fullBuff)
-    fs.writeFileSync(p, cropBuff)
+    const p = `/tmp/${query}-${id}-${socketId}.jpg`
+    if(!fs.existsSync(p)) {
+        const fullBuff = await download(u)
+        const cropBuff = await crop(fullBuff)
+        fs.writeFileSync(p, cropBuff)
+    } else {
+        console.log('already have that img')
+    }
     paths.push(p)
     return Promise.all([
         downloadCropSaveRecursive(urls, paths, id+1),
