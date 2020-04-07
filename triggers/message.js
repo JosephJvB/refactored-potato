@@ -25,7 +25,7 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     const p = `/tmp/${id}.jpg`
     const u = urls[id]
     if(!u) {
-        console.log('done')
+        console.log('done', paths)
         return paths
     }
     console.log(id, ':', u)
