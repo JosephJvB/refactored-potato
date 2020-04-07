@@ -28,15 +28,13 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
         return paths
     }
     console.log(id, ':', u)
-    const p = `/tmp/${query}-${id}-${socketId}.jpg`
+    const p = `/tmp/${id}.jpg`
     const fullBuff = await download(u)
     const cropBuff = await crop(fullBuff)
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
-    return Promise.all([
-        downloadCropSaveRecursive(urls, paths, id+1),
-        progress(id)
-    ])
+    await progress(id)
+    return downloadCropSaveRecursive(urls, paths, id+1)
 }
 
 async function progress (id) {
