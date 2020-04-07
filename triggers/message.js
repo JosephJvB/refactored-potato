@@ -29,35 +29,25 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     }
     console.log(id, ':', u)
     const p = `/tmp/${id}.jpg`
-    const fullBuff = await download(u)
-    const cropBuff = await crop(fullBuff)
-    // const [fullBuff, _1] = await Promise.all([
-    //     download(u),
-    //     progress(`download-${id}`)
-    // ])
-    // const [cropBuff, _2] = await Promise.all([
-    //     crop(fullBuff),
-    //     progress(`crop-${id}`)
-    // ])
+    const fullBuff = await progress(download(u), id)
+    const cropBuff = await progress(crop(fullBuff), id)
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
-    const [result, _3] = await Promise.all([
-        downloadCropSaveRecursive(urls, paths, id+1),
-        progress(`finish-${id}`)
-    ])
-    return result
+    return progress(downloadCropSaveRecursive(urls, paths, id+1), id)
 }
 
-async function progress (id) {
-    if(!socketId) return
-    return axios({
+async function progress (func, id) {
+    const arr = [func]
+    if(socketId) arr.push(axios({
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
-            imageId: id,
+            process: `${func.name}-${id}`,
             socketId
         }
-    })
+    }))
+    const [res, _] = await Promise.all(arr)
+    return res
 }
 async function loaded (url) {
     if(!socketId) return
