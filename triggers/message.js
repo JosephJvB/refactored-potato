@@ -6,16 +6,22 @@ const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
 
 let socketId
+let inProgressId
 
 exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
+        let incomingId = `${socketId}-${data.q}`
+        if(inProgressId == incomingId) return // duplicated message
+        inProgressId = incommingId
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
-        const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
+        const s3Url = await toS3(finalBuffer, `${query}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
         await loaded(s3Url)
+        socketId = null
+        inProgressId = null
     } catch (e) {
         console.error('ERROR', e)
     }
