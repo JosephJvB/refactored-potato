@@ -29,20 +29,20 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     }
     console.log(id, ':', u)
     const p = `/tmp/${id}.jpg`
-    const fullBuff = await progress(download(u), id)
-    const cropBuff = await progress(crop(fullBuff), id)
+    const fullBuff = await progress(download(u), `DL-${id}`)
+    const cropBuff = await progress(crop(fullBuff), `CP-${id}`)
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
-    return progress(downloadCropSaveRecursive(urls, paths, id+1), id)
+    return downloadCropSaveRecursive(urls, paths, id+1)
 }
 
-async function progress (func, id) {
+async function progress (func, pid) {
     const arr = [func]
     if(socketId) arr.push(axios({
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
-            processId: `${func.name}-${id}`,
+            processId: pid,
             socketId
         }
     }))
