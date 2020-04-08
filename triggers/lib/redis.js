@@ -6,12 +6,13 @@ const client = redis.createClient(PORT, HOST)
 module.exports = {
     exists,
     set,
-    del
+    del,
+    close
 }
 
 function exists (key) {
     return new Promise((resolve, reject) => {
-        client.exists(key, (err, int) => {
+        return client.exists(key, (err, int) => {
             if(err) {
                 console.error('Redis exists error:', err)
                 reject(err)
@@ -22,7 +23,7 @@ function exists (key) {
 }
 function set (key, value) {
     return new Promise((resolve, reject) => {
-        client.set(key, value, (err) => {
+        return client.set(key, value, (err) => {
             if(err) {
                 console.error('Redis set error:', err)
                 reject(err)
@@ -33,7 +34,7 @@ function set (key, value) {
 }
 function del (key) {
     return new Promise((resolve, reject) => {
-        client.del(key, (err, int) => {
+        return client.del(key, (err, int) => {
             if(err) {
                 console.error('Redis del error:', err)
                 reject(err)
@@ -41,4 +42,7 @@ function del (key) {
             resolve(int)
         })
     })
+}
+function close () {
+    client.quit()
 }

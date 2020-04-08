@@ -17,7 +17,11 @@ exports.handler = async (event, context) => {
         console.log('before redis')
         const exists = await redis.exists(uuid)
         console.log('after redis redis')
-        if(exists) return console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
+        if(exists) {
+            console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
+            redis.close()
+            return
+        }
         await redis.set(uuid, '1')
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
@@ -25,6 +29,7 @@ exports.handler = async (event, context) => {
         console.log('DONE DONE DONE', s3Url)
         await loaded(s3Url)
         await redis.del(uuid)
+        redis.close()
     } catch (e) {
         console.error('ERROR', e)
     }
