@@ -1,21 +1,15 @@
 const redis = require('redis')
-let client;
+const PORT = process.env.redis_port || 6379
+const HOST = process.env.redis_host || '127.0.0.1'
+const client = redis.createClient(PORT, HOST)
 
 module.exports = {
     exists,
     set,
     del,
-    close
-}
-
-function init () {
-    const PORT = process.env.redis_port || 6379
-    const HOST = process.env.redis_host || '127.0.0.1'
-    client = redis.createClient(PORT, HOST)
 }
 
 function exists (key) {
-    if(!client) init()
     return new Promise((resolve, reject) => {
         return client.exists(key, (err, int) => {
             if(err) {
@@ -27,7 +21,6 @@ function exists (key) {
     })
 }
 function set (key, value) {
-    if(!client) init()
     return new Promise((resolve, reject) => {
         return client.set(key, value, (err) => {
             if(err) {
@@ -39,7 +32,6 @@ function set (key, value) {
     })
 }
 function del (key) {
-    if(!client) init()
     return new Promise((resolve, reject) => {
         return client.del(key, (err, int) => {
             if(err) {
@@ -49,9 +41,4 @@ function del (key) {
             resolve(int)
         })
     })
-}
-function close () {
-    if(!client) return
-    client.quit()
-    client = null
 }

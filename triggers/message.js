@@ -12,24 +12,20 @@ exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
-        // const uuid = `${data.q}-${socketId}`
-        // console.log(uuid)
-        // console.log('before redis')
-        // const exists = await redis.exists(uuid)
-        // console.log('after redis redis')
-        // if(exists) {
-        //     console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
-        //     redis.close()
-        //     return
-        // }
-        // await redis.set(uuid, '1')
+        const uuid = `${data.q}-${socketId}`
+        console.log(uuid)
+        const exists = await redis.exists(uuid)
+        if(exists) {
+            console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
+            return
+        }
+        await redis.set(uuid, '1')
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
         await loaded(s3Url)
-        // await redis.del(uuid)
-        // redis.close()
+        await redis.del(uuid)
     } catch (e) {
         console.error('ERROR', e)
     }
