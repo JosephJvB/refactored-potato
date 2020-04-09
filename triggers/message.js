@@ -4,7 +4,7 @@ const download = require('./lib/download')
 const crop = require('./lib/crop')
 const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
-const dynamo = require('./lib/dynamodb')
+const Doc = require('./lib/dynamo-model')
 
 let socketId // send updates to request socket
 
@@ -14,21 +14,21 @@ exports.handler = async (event, context) => {
         socketId = data.socketId
         const uuid = `${data.q}-${socketId}`
         console.log(uuid)
-        const lockDoc = await dynamo.get()
-        if(lockDoc.blocked.includes(uuid)) {
+        const doc1 = await new Doc().getItem()
+        if(doc1.isBlocked(uuid)) {
             console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
             return
         }
-        lockDoc.blocked.push(uuid)
-        await dynamo.update(lockDoc.blocked)
+        doc1.block(uuid)
+        await doc1.save()
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
         await loaded(s3Url)
-        const doc2 = await dynamo.get()
-        const blocked2 = doc2.blocked.filter(id => id != uuid)
-        await dynamo.update(blocked2)
+        const doc2 = await new Doc().get()
+        doc2.unBlock(uuid)
+        await doc.save(doc2)
     } catch (e) {
         console.error('ERROR', e)
     }
