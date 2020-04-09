@@ -1,12 +1,13 @@
 const DB = require('aws-sdk/clients/dynamodb')
 
 module.exports = class Doc {
-    constructor () {
+    constructor (uuid) {
         this.client = new DB({
             accessKeyId: '',
             secretAccessKey: '',
             region: 'ap-southeast-2'
         })
+        this.uuid = uuid
     }
     blocked = []
     getParams = {
@@ -23,29 +24,34 @@ module.exports = class Doc {
         }
     }
 
-    isBlocked (id) {
-        return this.blocked.includes(id)
+    async checkBlocked () {
+        await this.getBlockedIds()
+        return this.blocked.includes(this.uuid)
     }
-    block (id) {
-        this.blocked.push(id)
+
+    async block () {
+        this.blocked.push(this.uuid)
+        await this.saveDoc()
     }
-    unBlock (id) {
-        this.blocked = this.blocked.filter(i => i != id)
+    async unBlock () {
+        await this.getBlockedIds()
+        this.blocked = this.blocked.filter(i => i != this.uuid)
+        await this.saveDoc()
     }
-    getItem () {
+
+    getBlockedIds () {
         return new Promise((resolve, reject) => {
             this.client.getItem(this.getParams, (err, data) => {
                 if(err) {
                     console.error('dynamo get error:', err)
                     reject(err)
                 }
-                console.log('GOT ITEM', data)
                 this.blocked = data.Item.blocked.L.map(i => i.S)
-                resolve(this)
+                resolve(true)
             })
         })
     }
-    save () {
+    saveDoc () {
         return new Promise((resolve, reject) => {
             this.client.putItem(this.updateParams, (err, data) => {
                 if(err) {

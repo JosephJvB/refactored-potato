@@ -12,23 +12,27 @@ exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         socketId = data.socketId
+
+        // init block - process every message just once
         const uuid = `${data.q}-${socketId}`
         console.log(uuid)
-        const doc1 = await new Doc().getItem()
-        if(doc1.isBlocked(uuid)) {
+        const doc = new Doc(uuid)
+        const isBlocked = await doc.checkBlocked()
+        if(isBlocked) {
             console.warn('EXIT EARLY, DUPLICATE MESSAGE:', uuid)
             return
         }
-        doc1.block(uuid)
-        await doc1.save()
+        await doc.block()
+
+        // process images recursive
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
-        const s3Url = await toS3(finalBuffer, `${data.q}-montage.jpg`)
+        const s3Url = await toS3(finalBuffer, `${uuid}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
         await loaded(s3Url)
-        const doc2 = await new Doc().get()
-        doc2.unBlock(uuid)
-        await doc.save(doc2)
+
+        // release message block
+        await doc.unBlock()
     } catch (e) {
         console.error('ERROR', e)
     }
