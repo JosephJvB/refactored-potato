@@ -1,12 +1,13 @@
 const DB = require('aws-sdk/clients/dynamodb')
-const dbClient = new DB({
-    accessKeyId: '',
-    secretAccessKey: '',
-    region: 'ap-southeast-2'
-})
 
 module.exports = class Doc {
-    constructor () {}
+    constructor () {
+        this.client = new DB({
+            accessKeyId: '',
+            secretAccessKey: '',
+            region: 'ap-southeast-2'
+        })
+    }
     blocked = []
     getParams = {
         TableName: 'recursive-message-lock',
@@ -33,7 +34,7 @@ module.exports = class Doc {
     }
     getItem () {
         return new Promise((resolve, reject) => {
-            dbClient.getItem(this.getParams, (err, data) => {
+            this.client.getItem(this.getParams, (err, data) => {
                 if(err) {
                     console.error('dynamo get error:', err)
                     reject(err)
@@ -46,7 +47,7 @@ module.exports = class Doc {
     }
     save () {
         return new Promise((resolve, reject) => {
-            dbClient.putItem(this.updateParams, (err, data) => {
+            this.client.putItem(this.updateParams, (err, data) => {
                 if(err) {
                     console.error('dynamo put error:', err)
                     reject(err)
