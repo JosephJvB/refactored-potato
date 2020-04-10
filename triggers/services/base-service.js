@@ -3,6 +3,10 @@ module.exports = class BaseService {
         this.name = name
     }
 
+    handle () {
+        throw new Error(`${this.name} does not impliment method: handle()`)
+    }
+
     logAndThrow(e) {
         if(e.isAxiosError) {
             e.message = e.response.data.message || e.message || 'Unknown Axios error'
