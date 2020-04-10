@@ -46,7 +46,7 @@ async function downloadCropSaveRecursive (urlsChunked, paths = [], idx = 0) {
     for(let i = 0; i < croppedBuffers.length; i++) {
         const p = `/tmp/chunk_${idx}-img_${i}.jpg`
         console.log('writing file', p)
-        fs.writeFileSync(p, cropBuff)
+        fs.writeFileSync(p, croppedBuffers[i])
         paths.push(p)
     }
     return downloadCropSaveRecursive(urlsChunked, paths, idx+1)
