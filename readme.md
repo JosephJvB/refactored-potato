@@ -27,3 +27,6 @@ Duration: 39202.90 ms	Billed Duration: 39300 ms	Memory Size: 3000 MB	Max Memory 
 Duration: 35483.56 ms	Billed Duration: 35500 ms	Memory Size: 3000 MB	Max Memory Used: 797 MB	Init Duration: 290.77 ms	
 1 process: blues
 Duration: 35483.56 ms	Billed Duration: 35500 ms	Memory Size: 3000 MB	Max Memory Used: 797 MB	Init Duration: 290.77 ms	
+
+chunk - 1 process
+Duration: 24449.31 ms	Billed Duration: 24500 ms	Memory Size: 3000 MB	Max Memory Used: 1340 MB	Init Duration: 276.84

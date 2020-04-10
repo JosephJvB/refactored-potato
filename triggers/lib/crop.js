@@ -1,9 +1,10 @@
 const axios = require('axios')
 const gm = require('gm').subClass({imageMagick: true})
+const fs = require('fs')
 
 module.exports = crop
 
-function crop (url) {
+function crop ({url, chunk, img}) {
     return new Promise(async (resolve, reject) => {
         const buffer = await download(url)
         const size = await getSize(buffer)
@@ -21,15 +22,18 @@ function crop (url) {
             cropY = Math.abs(150 - reY)
         }
 
+        const tmpPath = `/tmp/chunk_${chunk}--img_${img}.jpg`
         return gm(buffer)
         .resize(reX, reY)
         .crop(150, 150, cropX, cropY)
-        .toBuffer((err, buff) => {
+        .toBuffer((err, buffer) => {
             if(err) {
                 console.error(err)
                 reject(err)
             }
-            resolve(buff)
+            fs.writeFileSync(tmpPath, buffer)
+            console.log('write finished', tmpPath)
+            resolve(tmpPath)
         })
         
     })

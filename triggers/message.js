@@ -33,21 +33,21 @@ function chunkArray (arr) {
     return chunked
 }
 
-async function downloadCropSaveRecursive (urlsChunked, paths = [], idx = 0) {
-    const chunk = urlsChunked[idx]
+async function downloadCropSaveRecursive (urlsChunked, paths = [], cid = 0) {
+    const chunk = urlsChunked[cid]
     if(!chunk) {
         console.log('done')
         return paths
     }
-    console.log('processing chunk num:', idx)
-    const croppedBuffers = await progress(Promise.all(chunk.map(async u => crop(u))), (idx+1)*20)
-    for(let i = 0; i < croppedBuffers.length; i++) {
-        const p = `/tmp/chunk_${idx}-img_${i}.jpg`
-        console.log('writing file', p)
-        fs.writeFileSync(p, croppedBuffers[i])
-        paths.push(p)
-    }
-    return downloadCropSaveRecursive(urlsChunked, paths, idx+1)
+    console.log('processing chunk num:', cid)
+    const nextPaths = Promise.all(chunk.map(async (u, i) => crop({
+        url: u,
+        img: i,
+        chunk: cid
+    })))
+    await progress((cid+1)*20)
+    paths = [...paths, ...nextPaths]
+    return downloadCropSaveRecursive(urlsChunked, paths, cid+1)
 }
 
 async function progress (func, percent) {
