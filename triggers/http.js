@@ -24,7 +24,7 @@ exports.handler = async (event, context) => {
             }
         }
         await sendMessage({
-            socketId: event.queryStringParameters.socketId,
+            sessionId: event.queryStringParameters.sessionId,
             q,
             urls
         })

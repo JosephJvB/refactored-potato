@@ -2,6 +2,7 @@ const DB = require('aws-sdk/clients/dynamodb')
 
 module.exports = class Doc {
     constructor (uuid) {
+        super()
         this.client = new DB({
             accessKeyId: '',
             secretAccessKey: '',
@@ -16,9 +17,9 @@ module.exports = class Doc {
     }
     get updateParams () {
         return {
-            TableName: 'recursive-message-lock',
+            TableName: this.getParams.TableName,
             Item: {
-                partitionKey: { S: 'LOCK' },
+                partitionKey: this.getParams.Key.partitionKey,
                 blocked: { L: this.blocked.map(i => ({S: i})) }
             }
         }

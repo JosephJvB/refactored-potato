@@ -21,5 +21,5 @@ functions:
     events:
     - sqs:
         queueName: recursive
-        arn: arn:aws:sqs:ap-southeast-2:355151872526:recursive
+        arn: arn:aws:sqs:ap-southeast-2:355151872526:recursive.fifo
         batchSize: 1
