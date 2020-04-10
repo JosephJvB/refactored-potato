@@ -40,7 +40,7 @@ async function downloadCropSaveRecursive (urlsChunked, paths = [], cid = 0) {
         return paths
     }
     console.log('processing chunk num:', cid)
-    const nextPaths = Promise.all(chunk.map(async (u, i) => crop({
+    const nextPaths = await Promise.all(chunk.map(async (u, i) => crop({
         url: u,
         img: i,
         chunk: cid
@@ -50,9 +50,9 @@ async function downloadCropSaveRecursive (urlsChunked, paths = [], cid = 0) {
     return downloadCropSaveRecursive(urlsChunked, paths, cid+1)
 }
 
-async function progress (func, percent) {
-    const arr = [func]
-    if(sessionId) arr.push(axios({
+async function progress (percent) {
+    if(!sessionId) return
+    return axios({
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
@@ -60,9 +60,7 @@ async function progress (func, percent) {
             sessionId,
             q: query
         }
-    }))
-    const [res, _] = await Promise.all(arr)
-    return res
+    })
 }
 async function loaded (url) {
     if(!sessionId) return
