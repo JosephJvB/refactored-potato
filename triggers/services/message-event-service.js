@@ -15,6 +15,7 @@ module.exports = class MessageEventService extends BaseService {
         })
         this.sessionId = null
         this.query = null
+        this.imageUrlsChunked = []
         this.batchIdx = 0
         this.tempPaths = []
     }
@@ -40,7 +41,7 @@ module.exports = class MessageEventService extends BaseService {
         this.sessionId = data.sessionId
         this.query = data.q
         const chunked = []
-        for (let i = 0; i < data.length; i+=this.size) chunked.push(data.slice(i, i+this.size))
+        for (let i = 0; i < data.urls.length; i+=this.size) chunked.push(data.urls.slice(i, i+this.size))
         this.imageUrlsChunked = chunked
     }
 
@@ -52,15 +53,15 @@ module.exports = class MessageEventService extends BaseService {
         }
         console.log('processing batch num:', this.batchIdx)
         const croppedPromises = batch.map(async (url, i) => {
-            return processSingle({
+            return this.processSingle({
                 url,
                 img: i
             })
         })
         await Promise.all(croppedPromises)
-        await progress()
+        await this.pingProgress()
         this.batchIdx++
-        return processImagesRecursive()
+        return this.processImagesRecursive()
     }
 
     async processSingle ({url, img}) {

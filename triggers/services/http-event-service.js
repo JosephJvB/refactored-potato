@@ -19,7 +19,7 @@ module.exports = class HttpEventService extends BaseService {
 
     async handle () {
         try {
-            this.validate(event.queryStringParameters)
+            this.validate(this.event.queryStringParameters)
             await this.loadPhotosUrls()
             await this.queueMessage()
         } catch (e) {
