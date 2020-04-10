@@ -43,4 +43,7 @@ Duration: 39487.63 ms	Billed Duration: 39500 ms	Memory Size: 2500 MB	Max Memory 
 
 
 Class refactor - dont save event in memory
+
 Duration: 33021.42 ms	Billed Duration: 33100 ms	Memory Size: 2500 MB	Max Memory Used: 830 MB	Init Duration: 281.10 ms
+
+Duration: 25495.40 ms	Billed Duration: 25500 ms	Memory Size: 2500 MB	Max Memory Used: 1539 MB	Init Duration: 277.44 ms	

@@ -21,6 +21,8 @@ module.exports = class MessageEventService extends BaseService {
     }
 
     cleanup () {
+        console.log('deleting temp files x', this.tempPaths.length)
+        for(const p of this.tempPaths) if(fs.existsSync(p)) fs.unlinkSync(p)
         this.sessionId = null
         this.query = null
         this.imageUrlsChunked = []
@@ -165,7 +167,7 @@ module.exports = class MessageEventService extends BaseService {
                     return reject(err)
                 }
                 console.log('s3upload', data)
-                çç= data.Location
+                this.s3Url = data.Location
                 resolve()
             })
         })
