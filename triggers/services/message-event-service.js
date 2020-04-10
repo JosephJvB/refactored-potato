@@ -65,8 +65,8 @@ module.exports = class MessageEventService extends BaseService {
 
     async processSingle ({url, img}) {
         return new Promise(async (resolve, reject) => {
-            const buffer = await download(url)
-            const size = await getSize(buffer)
+            const buffer = await this.download(url)
+            const size = await this.getSize(buffer)
     
             let reX, reY, cropX, cropY
             if(size.width > size.height) {
@@ -94,6 +94,27 @@ module.exports = class MessageEventService extends BaseService {
                 this.tempPaths.push(tempPath)
                 console.log('write finished', tempPath)
                 resolve()
+            })
+        })
+    }
+
+    async download (url) {
+        const res = await axios({
+            method: 'get',
+            url: url,
+            responseType: 'arraybuffer',
+        })
+        return res.data
+    }
+    getSize(buffer) {
+        return new Promise((resolve, reject) => {
+            gm(buffer)
+            .size((err, size) => {
+                if(err) {
+                    console.log('error @ getSize gm.size()', err)
+                    reject(err)
+                }
+                resolve(size)
             })
         })
     }
