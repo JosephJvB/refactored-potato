@@ -30,3 +30,5 @@ Duration: 35483.56 ms	Billed Duration: 35500 ms	Memory Size: 3000 MB	Max Memory 
 
 chunk - 1 process
 Duration: 24449.31 ms	Billed Duration: 24500 ms	Memory Size: 3000 MB	Max Memory Used: 1340 MB	Init Duration: 276.84
+
+Duration: 25104.61 ms Billed Duration: 25200 ms Memory Size: 3000 MB Max Memory Used: 1233 MB Init Duration: 274.07 ms

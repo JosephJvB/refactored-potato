@@ -6,12 +6,13 @@ const sqsClient = new SQS({
 module.exports = sendMessage
 
 function sendMessage (body) {
+    const q = body.q.replace(/ /gi, '')
     return new Promise((resolve, reject) => {
         return sqsClient.sendMessage({
             MessageBody: JSON.stringify(body),
             QueueUrl: 'https://sqs.ap-southeast-2.amazonaws.com/355151872526/recursive.fifo',
-            MessageGroupId: body.sessionId,
-            MessageDeduplicationId: body.sessionId
+            MessageGroupId: q,
+            MessageDeduplicationId: q
         }, (err, data) => {
             if(err) {
                 console.log('QUEUE ERROR', err)

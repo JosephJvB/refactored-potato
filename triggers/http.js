@@ -32,8 +32,7 @@ exports.handler = async (event, context) => {
         return {
             statusCode: 200,
             body: JSON.stringify({
-                message: 'It can take up to 2 minutes to prepare your image, please wait',
-                url: `https://jvb-milk-v2.s3-ap-southeast-2.amazonaws.com/recursive/${q}-montage.jpg`
+                message: 'It can take up to 2 minutes to prepare your image, please wait'
             })
         }
     } catch (e) {
