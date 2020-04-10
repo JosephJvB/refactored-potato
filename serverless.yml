@@ -4,7 +4,6 @@ provider:
   name: aws
   runtime: nodejs12.x
   timeout: 10
-  memorySize: 3000
 
 functions:
   HttpListener:
@@ -15,7 +14,8 @@ functions:
         path: image
         method: get
   MessageListener:
-    timeout: 60
+    timeout: 45
+    memorySize: 1000
     role: arn:aws:iam::355151872526:role/queueLamda
     handler: triggers/message.handler
     events:

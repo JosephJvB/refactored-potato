@@ -1,9 +1,11 @@
+const axios = require('axios')
 const gm = require('gm').subClass({imageMagick: true})
 
 module.exports = crop
 
-function crop (buffer) {
+function crop (url) {
     return new Promise(async (resolve, reject) => {
+        const buffer = await download(url)
         const size = await getSize(buffer)
 
         let reX, reY, cropX, cropY
@@ -32,7 +34,19 @@ function crop (buffer) {
         
     })
 }
-
+async function download (url) {
+    try {
+        const res = await axios({
+            method: 'get',
+            url: url,
+            responseType: 'arraybuffer',
+        })
+        return res.data
+    } catch (e) {
+        console.log('ERROR @ download', e)
+        throw e
+    }
+}
 function getSize(buffer) {
     return new Promise((resolve, reject) => {
         gm(buffer)

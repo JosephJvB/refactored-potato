@@ -1,6 +1,5 @@
 const axios = require('axios')
 const fs = require('fs')
-const download = require('./lib/download')
 const crop = require('./lib/crop')
 const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
@@ -41,8 +40,7 @@ async function downloadCropSaveRecursive (urlsChunked, paths = [], idx = 0) {
         return paths
     }
     console.log('processing chunk num:', idx)
-    const fullBuffers = await progress(Promise.all(chunk.map(async u => download(u))), (idx+1)*20-10)
-    const croppedBuffers = await progress(Promise.all(fullBuffers.map(async b => crop(b))), (idx+1)*20)
+    const croppedBuffers = await progress(Promise.all(chunk.map(async u => crop(u))), (idx+1)*20)
     for(let i = 0; i < croppedBuffers.length; i++) {
         const p = `/tmp/chunk_${idx}-img_${i}.jpg`
         console.log('writing file', p)

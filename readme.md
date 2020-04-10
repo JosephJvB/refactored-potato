@@ -19,3 +19,11 @@ https://jvb-milk-v2.s3-ap-southeast-2.amazonaws.com/recursive/{q}-montage.jpg
 
 https://stackoverflow.com/questions/37094695/how-should-i-connect-to-a-re﻿dis-instance-from-an-aws-lambda-function
 sounds real fucky
+
+2 processes: blues
+Duration: 39202.90 ms	Billed Duration: 39300 ms	Memory Size: 3000 MB	Max Memory Used: 1176 MB	Init Duration: 284.94 ms	
+
+1 process: jazz
+Duration: 35483.56 ms	Billed Duration: 35500 ms	Memory Size: 3000 MB	Max Memory Used: 797 MB	Init Duration: 290.77 ms	
+1 process: blues
+Duration: 35483.56 ms	Billed Duration: 35500 ms	Memory Size: 3000 MB	Max Memory Used: 797 MB	Init Duration: 290.77 ms	
