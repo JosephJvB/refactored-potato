@@ -14,8 +14,8 @@ functions:
         path: image
         method: get
   MessageListener:
-    timeout: 40
-    memorySize: 2000
+    timeout: 60
+    memorySize: 2500
     role: arn:aws:iam::355151872526:role/queueLamda
     handler: triggers/message.handler
     events:
