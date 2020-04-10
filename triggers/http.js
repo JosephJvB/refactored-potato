@@ -1,34 +1,9 @@
-const { loadRemoteJson } = require('./lib/json')
-const selectPhotosUrls = require('./lib/select')
-const sendMessage = require('./lib/sqs')
+const HttpEventService = require('./services/http-event-service')
 
 exports.handler = async (event, context) => {
     try {
-        if(!event.queryStringParameters || !event.queryStringParameters.query) {
-            return {
-                statusCode:  400,
-                body: JSON.stringify({
-                    message: 'missing "query" from query parameters' 
-                })
-            }
-        }
-        const q = event.queryStringParameters.query
-        const json = await loadRemoteJson(q)
-        const urls = selectPhotosUrls(json)
-        if(!urls || urls.length < 25) {
-            return {
-                statusCode: 400,
-                body: JSON.stringify({
-                    message: `Failed to find 25 photos for query "${q}"`
-                })
-            }
-        }
-        await sendMessage({
-            sessionId: event.queryStringParameters.sessionId,
-            q,
-            urls
-        })
-
+        const httpService = new HttpEventService(event)
+        await httpService.handle()
         return {
             statusCode: 200,
             body: JSON.stringify({
@@ -36,11 +11,11 @@ exports.handler = async (event, context) => {
             })
         }
     } catch (e) {
-        console.error('HANDLER', e)
+        console.error('ERROR @ HTTP-HANDLER', e)
         return {
-            statusCode: 500,
+            statusCode: e.status || 500,
             body: JSON.stringify({
-                message: e.message
+                message: e.message || 'Unknown server error'
             })
         }
     }
