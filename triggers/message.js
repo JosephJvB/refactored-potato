@@ -15,7 +15,8 @@ exports.handler = async (event, context) => {
         sessionId = data.sessionId
         query = data.q
 
-        const paths = await downloadCropSaveRecursive(data.urls)
+        const chunked = chunkArray(data.urls)
+        const paths = await downloadCropSaveRecursive(chunked)
         const finalBuffer = await montage(paths)
         const s3Url = await toS3(finalBuffer, `${data.q}-${sessionId}-montage.jpg`)
         console.log('DONE DONE DONE', s3Url)
@@ -26,19 +27,29 @@ exports.handler = async (event, context) => {
     }
 }
 
-async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
-    const u = urls[id]
-    if(!u) {
+function chunkArray (arr) {
+    const size = 5
+    const chunked = []
+    for (let i = 0; i < arr.length; i+=size) chunked.push(arr.slice(i, i+size))
+    return chunked
+}
+
+async function downloadCropSaveRecursive (urlsChunked, paths = [], id = 0) {
+    const chunk = urlsChunked[id]
+    if(!chunk) {
         console.log('done')
         return paths
     }
-    console.log(id, ':', u)
-    const p = `/tmp/${id}.jpg`
-    const fullBuff = await progress(download(u), (id+1)*4-2)
-    const cropBuff = await progress(crop(fullBuff), (id+1)*4)
-    fs.writeFileSync(p, cropBuff)
-    paths.push(p)
-    return downloadCropSaveRecursive(urls, paths, id+1)
+    console.log('processing chunk num:', id)
+    const fullBuffers = await progress(Promise.all(chunk.map(async(u, i) => download(fullBuff))), (id+1)*4-2)
+    const croppedBuffers = await progress(Promise.all(fullBuffers.map(async(b, i) => crop(b))), (id+1)*4)
+    for(let i = 0; i < croppedBuffers.length; i++) {
+        const p = `/tmp/chunk_${id}-img_${i}.jpg`
+        console.log('writing file', p)
+        fs.writeFileSync(p, cropBuff)
+        paths.push(p)
+    }
+    return downloadCropSaveRecursive(urlsChunked, paths, id+1)
 }
 
 async function progress (func, percent) {
