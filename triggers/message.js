@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     }
 }
 
-async function downloadCropSaveRecursive (urls, paths = [], id = 1) {
+async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     const u = urls[id]
     if(!u) {
         console.log('done')
@@ -34,8 +34,8 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 1) {
     }
     console.log(id, ':', u)
     const p = `/tmp/${id}.jpg`
-    const fullBuff = await progress(download(u), id*4-2)
-    const cropBuff = await progress(crop(fullBuff), id*4)
+    const fullBuff = await progress(download(u), (id+1)*4-2)
+    const cropBuff = await progress(crop(fullBuff), (id+1)*4)
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
     return downloadCropSaveRecursive(urls, paths, id+1)
