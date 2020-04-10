@@ -5,12 +5,15 @@ const crop = require('./lib/crop')
 const montage = require('./lib/montage')
 const toS3 = require('./lib/s3')
 
-let sessionId // send updates to request socket
+// lazy global vars for helper functions below
+let sessionId
+let query
 
 exports.handler = async (event, context) => {
     try {
         const data = JSON.parse(event.Records[0].body)
         sessionId = data.sessionId
+        query = data.q
 
         const paths = await downloadCropSaveRecursive(data.urls)
         const finalBuffer = await montage(paths)
@@ -45,7 +48,8 @@ async function progress (func, pid) {
         url: `${process.env.ec2_url}/progress`,
         data: {
             processId: pid,
-            sessionId
+            sessionId,
+            q: query
         }
     }))
     const [res, _] = await Promise.all(arr)
@@ -58,7 +62,8 @@ async function loaded (url) {
         url: `${process.env.ec2_url}/loaded`,
         data: {
             url,
-            sessionId
+            sessionId,
+            q: query
         }
     })
 }
