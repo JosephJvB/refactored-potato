@@ -26,7 +26,7 @@ exports.handler = async (event, context) => {
     }
 }
 
-async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
+async function downloadCropSaveRecursive (urls, paths = [], id = 1) {
     const u = urls[id]
     if(!u) {
         console.log('done')
@@ -34,20 +34,20 @@ async function downloadCropSaveRecursive (urls, paths = [], id = 0) {
     }
     console.log(id, ':', u)
     const p = `/tmp/${id}.jpg`
-    const fullBuff = await progress(download(u), id+1)
-    const cropBuff = await progress(crop(fullBuff), id+2)
+    const fullBuff = await progress(download(u), id*4-2)
+    const cropBuff = await progress(crop(fullBuff), id*4)
     fs.writeFileSync(p, cropBuff)
     paths.push(p)
     return downloadCropSaveRecursive(urls, paths, id+1)
 }
 
-async function progress (func, pid) {
+async function progress (func, percent) {
     const arr = [func]
     if(sessionId) arr.push(axios({
         method: 'post',
         url: `${process.env.ec2_url}/progress`,
         data: {
-            processId: pid,
+            percent,
             sessionId,
             q: query
         }
