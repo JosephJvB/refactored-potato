@@ -1,15 +1,10 @@
 const HttpEventService = require('./services/http-event-service')
+const httpService = new HttpEventService()
 
 exports.handler = async (event, context) => {
     try {
-        const httpService = new HttpEventService(event)
-        await httpService.handle()
-        return {
-            statusCode: 200,
-            body: JSON.stringify({
-                message: 'It can take up to 2 minutes to prepare your image, please wait'
-            })
-        }
+        await httpService.handle(event)
+        return { statusCode: 200 }
     } catch (e) {
         console.error('ERROR @ HTTP-HANDLER', e)
         return {

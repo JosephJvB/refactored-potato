@@ -33,4 +33,14 @@ Duration: 24449.31 ms	Billed Duration: 24500 ms	Memory Size: 3000 MB	Max Memory 
 
 Duration: 25104.61 ms Billed Duration: 25200 ms Memory Size: 3000 MB Max Memory Used: 1233 MB Init Duration: 274.07 ms
 
+
+CLASS REFACTOR
 Duration: 35883.42 ms	Billed Duration: 35900 ms	Memory Size: 2000 MB	Max Memory Used: 685 MB	Init Duration: 280.86 ms
+
+Duration: 41074.67 ms	Billed Duration: 41100 ms	Memory Size: 2500 MB	Max Memory Used: 1402 MB	Init Duration: 283.25 ms	
+
+Duration: 39487.63 ms	Billed Duration: 39500 ms	Memory Size: 2500 MB	Max Memory Used: 1492 MB
+
+
+Class refactor - dont save event in memory
+Duration: 33021.42 ms	Billed Duration: 33100 ms	Memory Size: 2500 MB	Max Memory Used: 830 MB	Init Duration: 281.10 ms

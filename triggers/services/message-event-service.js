@@ -5,9 +5,8 @@ const S3 = require('aws-sdk/clients/s3')
 const BaseService = require('./base-service')
 
 module.exports = class MessageEventService extends BaseService {
-    constructor(event) {
+    constructor() {
         super('MessageEventService')
-        this.event = event
         this.s3Client = new S3({
             accessKeyId: '', // todo private bucket
             secretAccessKey: '',
@@ -18,23 +17,35 @@ module.exports = class MessageEventService extends BaseService {
         this.imageUrlsChunked = []
         this.batchIdx = 0
         this.tempPaths = []
+        this.s3Url = null
+    }
+
+    cleanup () {
+        this.sessionId = null
+        this.query = null
+        this.imageUrlsChunked = []
+        this.batchIdx = 0
+        this.tempPaths = []
+        this.s3Url = null
     }
 
     size = 5 // can actually try with batched messages now Im using fifo
+    ec2Url = 'http://ec2-3-88-131-151.compute-1.amazonaws.com:3000'
 
-    async handle () {
+    async handle (event) {
         try {
-            this.parseEvent()
+            this.parseEvent(event)
             await this.processImagesRecursive()
             await this.saveMontage()
             await this.pingLoaded()
+            this.cleanup()
         } catch (e) {
             this.logAndThrow(e)
         }
     }
 
-    parseEvent () {
-        const data = JSON.parse(this.event.Records[0].body)
+    parseEvent (event) {
+        const data = JSON.parse(event.Records[0].body)
         if(!data.urls || data.urls.length !== 25) {
             throw new Error(`Invalid message body, expect data.urls.length = 25 received ${data.urls.length}`)
         }
@@ -154,7 +165,7 @@ module.exports = class MessageEventService extends BaseService {
                     return reject(err)
                 }
                 console.log('s3upload', data)
-                this.s3Url = data.Location
+                çç= data.Location
                 resolve()
             })
         })
@@ -165,7 +176,7 @@ module.exports = class MessageEventService extends BaseService {
         if(!this.sessionId) return
         return axios({
             method: 'post',
-            url: `${process.env.ec2_url}/progress`,
+            url: `${this.ec2Url}/progress`,
             data: {
                 percent,
                 sessionId: this.sessionId,
@@ -177,7 +188,7 @@ module.exports = class MessageEventService extends BaseService {
         if(!this.sessionId) return
         return axios({
             method: 'post',
-            url: `${process.env.ec2_url}/loaded`,
+            url: `${this.ec2Url}/loaded`,
             data: {
                 url: this.s3Url,
                 sessionId: this.sessionId,
