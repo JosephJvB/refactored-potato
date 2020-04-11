@@ -1,17 +1,13 @@
 const axios = require('axios')
 const gm = require('gm').subClass({imageMagick: true})
 const fs = require('fs')
-const S3 = require('aws-sdk/clients/s3')
 const BaseService = require('./base-service')
 
 module.exports = class MessageEventService extends BaseService {
-    constructor() {
+    constructor(props) {
         super('MessageEventService')
-        this.s3Client = new S3({
-            accessKeyId: '', // todo private bucket
-            secretAccessKey: '',
-            region: 'ap-southeast-2'
-        })
+        this.s3Client = props.s3Client
+        this.basePath = props.basePath || '/tmp'
         this.sessionId = null
         this.query = null
         this.imageUrlsChunked = []
@@ -95,7 +91,7 @@ module.exports = class MessageEventService extends BaseService {
                 cropY = Math.abs(150 - reY)
             }
     
-            const tempPath = `/tmp/batch_${this.batchIdx}--img_${img}.jpg`
+            const tempPath = `${this.basePath}/batch_${this.batchIdx}--img_${img}.jpg`
             return gm(buffer)
             .resize(reX, reY)
             .crop(150, 150, cropX, cropY)
@@ -138,7 +134,7 @@ module.exports = class MessageEventService extends BaseService {
             const g = gm()
             for(const p of this.tempPaths) {
                 g.montage(p)
-                .geometry('+5+5')
+                .geometry('+2.5+2.5')
             }
     
             return g.toBuffer(async (err, buffer) => {

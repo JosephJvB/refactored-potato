@@ -3,11 +3,9 @@ const SQS = require('aws-sdk/clients/sqs')
 const BaseService = require('./base-service')
 
 module.exports = class HttpEventService extends BaseService {
-    constructor() {
+    constructor(props) {
         super('HttpEventService')
-        this.sqsClient = new SQS({
-            region: 'ap-southeast-2'
-        })
+        this.sqsClient = props.sqsClient
         this.sessionId = null
         this.query = null
         this.urls = []
