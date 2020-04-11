@@ -19,6 +19,7 @@ async function run () {
         const httpEvent = { queryStringParameters: { query, sessionId } }
         const httpService = new HttpService({ sqsClient })
         await httpService.handle(httpEvent)
+
         const body = fs.readFileSync(sqsClient.path, 'utf8')
         const messageEvent = { Records: [{ body }]}
         const messageService = new MessageService({ s3Client, basePath: path.join(__dirname, 'temp') })

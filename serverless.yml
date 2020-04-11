@@ -1,5 +1,8 @@
 service: recursive
 
+package:
+  individually: true
+
 provider:
   name: aws
   runtime: nodejs12.x
@@ -23,3 +26,6 @@ functions:
         queueName: recursive
         arn: arn:aws:sqs:ap-southeast-2:355151872526:recursive.fifo
         batchSize: 1
+
+plugins:
+  - serverless-webpack
