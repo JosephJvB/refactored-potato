@@ -7,6 +7,9 @@ module.exports = {
   mode: slsw.lib.webpack.isLocal ? 'development' : 'production',
   node: false,
   devtool: 'inline-cheap-module-source-map',
+  optimization: {
+    minimize: false, // minimize has little performance improvement, and makes stack traces harder to read
+  },
   module: {
     rules: [
       {
