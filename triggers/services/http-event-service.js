@@ -1,10 +1,9 @@
-const axios = require('axios')
-const SQS = require('aws-sdk/clients/sqs')
 const BaseService = require('./base-service')
 
 module.exports = class HttpEventService extends BaseService {
     constructor(props) {
         super('HttpEventService')
+        this.httpClient = props.httpClient
         this.sqsClient = props.sqsClient
         this.sessionId = null
         this.query = null
@@ -17,8 +16,6 @@ module.exports = class HttpEventService extends BaseService {
         this.urls = []
     }
 
-    photoApiUrl = 'https://api.unsplash.com//search/photos'
-    clientId = '5hGHo5piKDNaPTSRv-cSM8wdpMmlrUu7ylKY4abeK7g'
     queueUrl = 'https://sqs.ap-southeast-2.amazonaws.com/355151872526/recursive.fifo'
 
     async handle (event) {
@@ -45,16 +42,7 @@ module.exports = class HttpEventService extends BaseService {
     }
 
     async loadPhotosUrls () {
-        const res = await axios({
-            method: 'get',
-            url: this.photoApiUrl,
-            params: {
-                client_id: this.clientId,
-                page: 1,
-                query: this.query,
-                per_page: 25
-            }
-        })
+        const res = await this.httpClient.loadPhotos(this.query)
         this.urls = this.selectPhotos(res.data.results)
     }
     selectPhotos (data) {

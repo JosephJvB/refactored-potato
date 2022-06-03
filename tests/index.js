@@ -15,15 +15,17 @@ async function run () {
     try {
         const sqsClient = new mocks.SQS()
         const s3Client = new mocks.S3()
+        const httpClient = new mocks.Http()
 
         const httpEvent = { queryStringParameters: { query, sessionId } }
-        const httpService = new HttpService({ sqsClient })
+        const httpService = new HttpService({ sqsClient, httpClient })
         await httpService.handle(httpEvent)
 
         const body = fs.readFileSync(sqsClient.path, 'utf8')
         const messageEvent = { Records: [{ body }]}
-        const messageService = new MessageService({ s3Client, basePath: path.join(__dirname, 'temp') })
+        const messageService = new MessageService({ httpClient, s3Client, basePath: path.join(__dirname, 'temp') })
         await messageService.handle(messageEvent)
+        console.log('montage saved @', messageService.basePath + '/TESTMONTAGE.jpg')
     } catch (e) {
         console.error('TEST ERROR', e)
     }

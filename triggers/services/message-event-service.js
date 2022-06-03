@@ -1,4 +1,3 @@
-const axios = require('axios')
 const gm = require('gm').subClass({imageMagick: true})
 const fs = require('fs')
 const BaseService = require('./base-service')
@@ -6,6 +5,7 @@ const BaseService = require('./base-service')
 module.exports = class MessageEventService extends BaseService {
     constructor(props) {
         super('MessageEventService')
+        this.httpClient = props.httpClient
         this.s3Client = props.s3Client
         this.basePath = props.basePath || '/tmp'
         this.sessionId = null
@@ -28,7 +28,6 @@ module.exports = class MessageEventService extends BaseService {
     }
 
     size = 5 // can actually try with batched messages now Im using fifo
-    ec2Url = 'http://ec2-3-88-131-151.compute-1.amazonaws.com:3000'
 
     async handle (event) {
         try {
@@ -109,11 +108,7 @@ module.exports = class MessageEventService extends BaseService {
     }
 
     async download (url) {
-        const res = await axios({
-            method: 'get',
-            url: url,
-            responseType: 'arraybuffer',
-        })
+        const res = await this.httpClient.download(url)
         return res.data
     }
     getSize(buffer) {
@@ -172,26 +167,10 @@ module.exports = class MessageEventService extends BaseService {
     async pingProgress () {
         const percent = (this.batchIdx+1)*20
         if(!this.sessionId) return
-        return axios({
-            method: 'post',
-            url: `${this.ec2Url}/progress`,
-            data: {
-                percent,
-                sessionId: this.sessionId,
-                q: this.query
-            }
-        })
+        return this.httpClient.pingProgress(this.sessionId, percent, this.query)
     }
     async pingLoaded () {
         if(!this.sessionId) return
-        return axios({
-            method: 'post',
-            url: `${this.ec2Url}/loaded`,
-            data: {
-                url: this.s3Url,
-                sessionId: this.sessionId,
-                q: this.query
-            }
-        })
+        return this.httpClient.pingLoaded(this.sessionId, this.s3Url, this.query)
     }
 }
